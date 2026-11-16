@@ -1,0 +1,19 @@
+{
+  "name": "envsync",
+  "version": "1.0.0",
+  "description": "A lightning-fast CLI tool to audit and sync environment variables.",
+  "main": "bin/index.js",
+  "bin": {
+    "envsync": "./bin/index.js"
+  },
+  "keywords": [
+    "cli",
+    "env",
+    "developer-tools"
+  ],
+  "author": "Ismail Labaran Ibrahim",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^15.1.0"
+  }
+}
