@@ -2,6 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline/promises');
+const { stdin: input, stdout: output } = require('process');
 const { Command } = require('commander');
 const program = new Command();
 
@@ -77,7 +79,8 @@ program
   .description('Automatically append missing variables from the template into your .env file')
   .option('-e, --env <path>', 'Path to your .env file', '.env')
   .option('-t, --template <path>', 'Path to your template file', '.env.example')
-  .action((options) => {
+  .option('-i, --interactive', 'Prompt for values of missing variables interactively')
+  .action(async (options) => {
     const envPath = path.resolve(process.cwd(), options.env);
     const templatePath = path.resolve(process.cwd(), options.template);
 
@@ -94,9 +97,8 @@ program
     const templateContent = fs.readFileSync(templatePath, 'utf8');
     const envVars = parseEnvFile(envPath);
 
-    // Find missing keys from template content lines
     const lines = templateContent.split(/\r?\n/);
-    const missingLines = [];
+    const missingKeys = [];
 
     lines.forEach((line) => {
       const trimmed = line.trim();
@@ -105,23 +107,39 @@ program
         if (eqIndex !== -1) {
           const key = trimmed.substring(0, eqIndex).trim();
           if (!envVars[key]) {
-            missingLines.push(line);
+            missingKeys.push(key);
           }
         }
       }
     });
 
-    if (missingLines.length === 0) {
+    if (missingKeys.length === 0) {
       console.log('Success: Your .env file already has all template variables. Nothing to sync.');
       return;
     }
 
-    // Append missing variables to the .env file safely
-    const appendContent = '\n# Added by EnvSync CLI\n' + missingLines.join('\n') + '\n';
+    let linesToAdd = [];
+
+    if (options.interactive) {
+      const rl = readline.createInterface({ input, output });
+      console.log(`\nInteractive sync: Enter value for each missing variable (press Enter to leave blank):\n`);
+
+      for (const key of missingKeys) {
+        const answer = await rl.question(`   > ${key} = `);
+        linesToAdd.push(`${key}=${answer.trim()}`);
+      }
+      rl.close();
+    } else {
+      missingKeys.forEach((key) => {
+        linesToAdd.push(`${key}=`);
+      });
+    }
+
+    const appendContent = '\n# Added by EnvSync CLI\n' + linesToAdd.join('\n') + '\n';
     fs.appendFileSync(envPath, appendContent, 'utf8');
 
-    console.log(`Synced successfully! Added ${missingLines.length} missing variable(s) to ${options.env}:`);
-    missingLines.forEach((l) => console.log(`   + ${l}`));
+    console.log(`\nSynced successfully! Added ${missingKeys.length} missing variable(s) to ${options.env}:`);
+    linesToAdd.forEach((l) => console.log(`   + ${l}`));
   });
 
 program.parse();
