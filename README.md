@@ -1,4 +1,4 @@
-﻿# EnvSync
+# EnvSync
 
 A professional, lightning-fast CLI tool built in Node.js to audit and synchronize environment configuration files against templates. Designed for clean terminal workflows with zero unnecessary overhead.
 
@@ -13,36 +13,32 @@ A professional, lightning-fast CLI tool built in Node.js to audit and synchroniz
 
 Clone the repository and link it globally for local development:
 
-\\\ash
-git clone https://github.com/HammAila/envsync.git
+\ash
+git clone https://github.com/HammaIla/envsync.git
 cd envsync
 npm install
 npm link
-\\\
-
+\\n
 ## Usage
 
 ### Audit Configuration
 Check your current .env file for discrepancies against .env.example:
 
-\\\ash
+\ash
 envsync audit
-\\\
-
+\\n
 ### Sync Missing Variables
 Append missing variables automatically with empty values:
 
-\\\ash
+\ash
 envsync sync
-\\\
-
+\\n
 ### Interactive Sync
 Prompt for values of missing variables interactively:
 
-\\\ash
+\ash
 envsync sync --interactive
-\\\
-
+\\n
 ## License
 
 MIT License
